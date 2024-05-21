@@ -52,11 +52,6 @@ export default function Colors() {
     ]);
   }
 
-  createEffect(() => {
-    console.log(groups());
-  })
-
-
   return (
     <article class="prose">
       <h1>Colors</h1>
