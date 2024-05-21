@@ -1,4 +1,5 @@
 import { For } from 'solid-js'
+import { copyText } from './toast'
 
 const Swatches = (props: { colors: string[] }) => {
   return (
