@@ -14,6 +14,11 @@ export const createToast = (message: string, delay: number = 1500) => {
   }, delay)
 }
 
+export const copyText = async (text: string) => {
+  await navigator.clipboard.writeText(text)
+  createToast(`Copied ${text} to Clipboard!`)
+}
+
 export const Toast = () => {
   return (
     <div class="toast">

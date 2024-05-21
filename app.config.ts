@@ -2,6 +2,6 @@ import { defineConfig } from "@solidjs/start/config";
 
 export default defineConfig({
   server: {
-    preset: 'vercel'
-  }
+    preset: process.env.VERCEL ? 'vercel' : 'node-server',
+  },
 });
