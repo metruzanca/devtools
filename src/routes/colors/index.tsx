@@ -35,7 +35,7 @@ const AddColorModalForm = (props: {
       <Modal ref={modalRef}>
         <form class="flex" onSubmit={handleSubmit}>
           <input autofocus type="text" name="color" placeholder="hex color" class="input input-bordered input-primary w-full max-w-xs" />
-          <button class="btn" type="submit">Add</button>
+          <button class="btn btn-primary ml-2" type="submit">Add</button>
         </form>
       </Modal>
     </>
@@ -81,12 +81,13 @@ export default function Colors() {
           onClick={() => setColors([])}
         />
       </div>
-      <Swatches colors={colors()}/>
+      <div class="flex flex-wrap">
+        <Swatches colors={colors()} onDelete={color => setColors(colors().filter((item) => item !== color))}/>
 
-      <AddColorModalForm
-        onSubmit={color => setColors([...colors(), color])}
-      />
-      
+        <AddColorModalForm
+          onSubmit={color => setColors([...colors(), color])}
+        />
+      </div>
       </article>
     )
   }

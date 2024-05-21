@@ -1,20 +1,32 @@
-import { For } from 'solid-js'
+import { Component, For } from 'solid-js'
 import { copyText } from './toast'
 
-const Swatches = (props: { colors: string[] }) => {
+const Swatches: Component<{
+  colors: string[];
+  onDelete: (color: string) => void
+}> = (props) => {
   return (
-    <div class="flex">
-      <For each={props.colors.map(hex => '#' + hex)} children={color =>
-        <div
-          class="btn w-24 h-24 center hover:cursor-pointer bg-base-100 shadow-xl"
-          style={{background: color}}
-          onClick={() => copyText(color)}
-        >
-          {color}
+    <For
+      each={props.colors}
+      children={(color) => (
+        <div class="relative group">
+          <button
+            class="btn btn-xs btn-circle btn-ghost absolute right-1 top-1 invisible group-hover:visible"
+            onClick={() => props.onDelete(color)}
+          >
+            ✕
+          </button>
+          <div
+            class="btn w-24 h-24 center hover:cursor-pointer bg-base-100 shadow-xl"
+            style={{ background: `#${color}` }}
+            onClick={() => copyText(`#${color}`)}
+          >
+            {`#${color}`}
+          </div>
         </div>
-      }/>
-    </div>
-  )
-}
+      )}
+    />
+  );
+};
 
 export default Swatches
