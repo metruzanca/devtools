@@ -14,9 +14,9 @@ export const createToast = (message: string, delay: number = 1500) => {
   }, delay)
 }
 
-export const copyText = async (text: string) => {
+export const copyText = async (text: string, message?: string) => {
   await navigator.clipboard.writeText(text)
-  createToast(`Copied ${text} to Clipboard!`)
+  createToast(message || `Copied ${text} to Clipboard!`);
 }
 
 export const Toast = () => {

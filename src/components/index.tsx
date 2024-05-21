@@ -17,7 +17,7 @@ export const Modal = (props: {
   ref?: HTMLDialogElement
 }) => {
   return (
-    <dialog ref={props.ref} id="my_modal_3" class="modal">
+    <dialog ref={props.ref} class="modal">
       <div class="modal-box">
         <form method="dialog">
           <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>

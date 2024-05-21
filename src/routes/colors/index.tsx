@@ -1,45 +1,16 @@
 import { useLocation, useNavigate } from "@solidjs/router"
-import { createMemo, For, onMount } from "solid-js"
+import { For, createEffect, createMemo, onMount } from "solid-js"
 import { isServer } from "solid-js/web"
-import { Modal } from "~/components"
-import { clientOnly } from "@solidjs/start";
+import { AddColorModalForm, SaveGroupForm } from "~/components/forms";
+import { Swatches } from "~/components/client";
+import { createLocalStorage } from "~/lib";
+import { produce } from "solid-js/store";
+import { copyText } from "~/components/toast";
 
-const Swatches = clientOnly(() => import('../../components/swatches'))
-
-const AddColorModalForm = (props: {
-  onSubmit: (color: string) => void
-}) => {
-  let modalRef: HTMLDialogElement|undefined;
-
-  const handleSubmit = (e: Event) => {
-    const form = e.target as HTMLFormElement
-    const fd = new FormData(form)
-    let color = fd.get('color')?.toString()
-    if (!color) return e.preventDefault();
-      
-    if (color?.startsWith('#')) color = color.slice(1);
-    props.onSubmit(color)
-    
-    modalRef?.close()
-    form.reset()
-    e.preventDefault()
-  }
-
-  return (
-    <>
-      <button
-        class="btn w-24 h-24 center text-4xl"
-        textContent="+"
-        onClick={() => modalRef?.showModal()}
-      />
-      <Modal ref={modalRef}>
-        <form class="flex" onSubmit={handleSubmit}>
-          <input autofocus type="text" name="color" placeholder="hex color" class="input input-bordered input-primary w-full max-w-xs" />
-          <button class="btn btn-primary ml-2" type="submit">Add</button>
-        </form>
-      </Modal>
-    </>
-  )
+type ColorGroup = {
+  id: number
+  name: string
+  colors: string[]
 }
 
 export default function Colors() {
@@ -55,8 +26,6 @@ export default function Colors() {
     navigate(location.pathname + localColors)
   })
 
-
-
   const colors = createMemo(() => 
     location.hash
       .slice(1)
@@ -70,6 +39,24 @@ export default function Colors() {
     if (!isServer) localStorage.setItem('colors', hash)
   }
 
+  const [groups, setGroups] = createLocalStorage<ColorGroup[]>("groups", []);
+
+  const saveGroup = (name: string) => {  
+    setGroups((state) => [
+      ...state,
+      {
+        id: Math.random(),
+        name,
+        colors: colors(),
+      },
+    ]);
+  }
+
+  createEffect(() => {
+    console.log(groups());
+  })
+
+
   return (
     <article class="prose">
       <h1>Colors</h1>
@@ -80,14 +67,61 @@ export default function Colors() {
           textContent="clear"
           onClick={() => setColors([])}
         />
+        <SaveGroupForm onSubmit={saveGroup} />
       </div>
       <div class="flex flex-wrap">
-        <Swatches colors={colors()} onDelete={color => setColors(colors().filter((item) => item !== color))}/>
+        <Swatches
+          colors={colors()}
+          onDelete={(color) =>
+            setColors(colors().filter((item) => item !== color))
+          }
+        />
 
         <AddColorModalForm
-          onSubmit={color => setColors([...colors(), color])}
+          onSubmit={(color) => setColors([...colors(), color])}
         />
       </div>
-      </article>
-    )
+
+      {groups().length > 0 && (
+        <>
+          <For
+            each={groups()}
+            children={(group) => (
+              <div class="group">
+                <div class="flex items-center gap-2 ">
+                  <h3 class="mt-0">{group.name}</h3>
+                  <button
+                    class="btn btn-primary btn-xs invisible group-hover:visible"
+                    onClick={() =>
+                      copyText(
+                        `${window.location.origin}${
+                          location.pathname
+                        }#${colors().join(",")}`,
+                        "Copied Shareable URL"
+                      )
+                    }
+                  >
+                    Share
+                  </button>
+                  <button
+                    class="btn btn-xs btn-circle btn-ghost invisible group-hover:visible"
+                    onClick={() =>
+                      setGroups((groups) =>
+                        groups.filter((g) => g.id !== group.id)
+                      )
+                    }
+                  >
+                    ✕
+                  </button>{" "}
+                </div>
+                <div class="flex flex-wrap">
+                  <Swatches colors={group.colors} />
+                </div>
+              </div>
+            )}
+          />
+        </>
+      )}
+    </article>
+  );
   }
